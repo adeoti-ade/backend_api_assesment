@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'api',
 ]
 
@@ -58,6 +59,9 @@ DATABASES = {
         "PORT": '5432',
     }
 }
+
+AUTH_USER_MODEL = 'api.Account'
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

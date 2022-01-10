@@ -37,9 +37,7 @@ class OutboundView(GenericAPIView):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-        _from = validated_data.get("_from")
-        _to = validated_data.get("_to")
-        
+    
         return Response()
 
 

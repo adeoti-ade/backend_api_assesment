@@ -1,4 +1,6 @@
 from django.core.cache import cache
+from django.utils import timezone
+
 
 from rest_framework import serializers
 
@@ -50,13 +52,35 @@ class OutBoundSMSSerializer(SmsSerializer):
         _from = data.get("_from")
         _to = data.get("_to")
         to_from_cache = cache.get(_from)
-        print(_to)
-        print(_from)
-        print(to_from_cache)
         if to_from_cache == _to:
             raise serializers.ValidationError(
                 f"sms from {_from} to {_to} blocked by STOP request"
             )
+
+        cached_from_prefixed = "cached_"+_from
+        cached_from = cache.get(cached_from_prefixed)
+        if cached_from:
+            api_count = cached_from.get("api_count")
+            first_request_time = cached_from.get("first_request_time")
+            diff = timezone.now() - first_request_time
+            diff_in_hours = diff.total_seconds() / 3600
+
+            if api_count == 50 and diff_in_hours < 24:
+                raise serializers.ValidationError(
+                    f"limit reached for from {_from}"
+                )
+
+            if int(diff_in_hours) == 24:
+                cache.delete(cached_from_prefixed)
+
+            cached_from["api_count"] = api_count+1
+            cache.set(cached_from_prefixed, cached_from, 60 * 60 * 24)
+        else:
+            cache_data = {
+                "api_count": 1,
+                "first_request_time": timezone.now()
+            }
+            cache.set(cached_from_prefixed, cache_data, 60 * 60 * 24)
 
         return data
 

@@ -1,9 +1,9 @@
-from rest_framework import routers
 from . import views
+from django.urls import path
 
-router = routers.SimpleRouter(trailing_slash=False)
-router.register(r"accounts", views.AccountViewSet)
 
-urlpatterns = []
+urlpatterns = [
+    path("inbound/sms", views.InboundView.as_view()),
+    path("token", views.TokenView.as_view())
 
-urlpatterns += router.urls
+]

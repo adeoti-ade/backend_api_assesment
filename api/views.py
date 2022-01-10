@@ -1,30 +1,49 @@
-from rest_framework import authentication, serializers
+from django.core.cache import cache
+
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 
-from .models import Account, PhoneNumber
 from .authentication import AccountAuthentication
-from .serializers import SmsSerializer, TokenSerializer
+from .serializers import InBoundSMSSerializer, TokenSerializer, OutBoundSMSSerializer
 from .utils import login_user
 
 
 class InboundView(GenericAPIView):
-    queryset = Account.objects.all()
-    serializer_class = SmsSerializer
+    serializer_class = InBoundSMSSerializer
     authentication_classes = [AccountAuthentication]
     permission_classes = (IsAuthenticated,)
+    cache_timeout = 60 * 60 * 4
 
     def post(self, request, *args, **kwargs):
-        print(request.user)
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        _from = validated_data.get("_from")
+        _to = validated_data.get("_to")
+        cache.set(_to, _from, self.cache_timeout)
+        
+        return Response()
+
+
+class OutboundView(GenericAPIView):
+    serializer_class = OutBoundSMSSerializer
+    authentication_classes = [AccountAuthentication]
+    permission_classes = (IsAuthenticated,)
+    cache_timeout = 60 * 60 * 4
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        _from = validated_data.get("_from")
+        _to = validated_data.get("_to")
+        
         return Response()
 
 
 class TokenView(GenericAPIView):
-    queryset = Account.objects.all()
     serializer_class = TokenSerializer
 
     def post(self, request, *args, **kwargs):

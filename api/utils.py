@@ -19,3 +19,8 @@ def login_user(username, auth_id):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
+
+def get_number_for_user(user: Account, number, method):
+    receiver_qs = user.phonenumber_set.filter(number=number).first()
+    if not receiver_qs:
+        raise serializers.ValidationError(f"{method} parameter not found")

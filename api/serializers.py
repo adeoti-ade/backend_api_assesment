@@ -54,7 +54,9 @@ class OutBoundSMSSerializer(SmsSerializer):
         to_from_cache = cache.get(_from)
         if to_from_cache == _to:
             raise serializers.ValidationError(
-                f"sms from {_from} to {_to} blocked by STOP request"
+                {
+                    "_from": f"sms from {_from} to {_to} blocked by STOP request"
+                }
             )
 
         cached_from_prefixed = "cached_"+_from
@@ -67,7 +69,9 @@ class OutBoundSMSSerializer(SmsSerializer):
 
             if api_count == 50 and diff_in_hours < 24:
                 raise serializers.ValidationError(
-                    f"limit reached for from {_from}"
+                    {
+                        "_from": f"limit reached for from {_from}"
+                    }
                 )
 
             if int(diff_in_hours) == 24:

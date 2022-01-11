@@ -25,13 +25,13 @@ def get_number_for_user(user: Account, number, method):
     if not receiver_qs:
         raise serializers.ValidationError(f"{method} parameter not found")
 
-def create_account_with_phone_numbers():
-    account = Account.objects.create(
+def create_account_with_phone_numbers(number="08133703766"):
+    account, _ = Account.objects.get_or_create(
         username="awer",
         password="12345671"
     )
     PhoneNumber.objects.create(
-        number="08133703766",
+        number=number,
         account=account
     )
 

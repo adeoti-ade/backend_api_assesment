@@ -20,7 +20,7 @@ class SmsSerializer(serializers.Serializer):
         required=True,
         error_messages={
             'required': '_from is missing', 
-            'blank': '_to is invalid'
+            'blank': '_from is invalid'
             }
         )
     _text = serializers.CharField(
@@ -28,7 +28,7 @@ class SmsSerializer(serializers.Serializer):
         required=True,
         error_messages={
             'required': '_text is missing',
-            'blank': '_to is invalid'
+            'blank': '_text is invalid'
             }
         )
 

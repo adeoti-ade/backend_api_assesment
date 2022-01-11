@@ -23,8 +23,8 @@ class InboundView(GenericAPIView):
         _from = validated_data.get("_from")
         _to = validated_data.get("_to")
         cache.set(_to, _from, self.cache_timeout)
-        
-        return Response()
+        data = {"message": "inbound sms ok", "error": ""}
+        return Response(data)
 
 
 class OutboundView(GenericAPIView):
@@ -36,9 +36,8 @@ class OutboundView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-    
-        return Response()
+        data = {"message": "outbound sms ok", "error": ""}
+        return Response(data)
 
 
 class TokenView(GenericAPIView):
